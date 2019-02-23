@@ -3,7 +3,7 @@ package com.jsonsearcher.json
 import org.scalatest._
 import io.circe.parser
 import com.jsonsearcher.fixtures.JsonString
-import com.jsonsearcher.models.Organization
+import com.jsonsearcher.models.{Organization, Ticket}
 
 
 class DeserializerSpec extends FunSpec {
@@ -28,6 +28,20 @@ class DeserializerSpec extends FunSpec {
       decodedOrg match {
         case Right(org) => assert(org == expectedResult)
         case Left(error) => fail()
+      }
+    }
+  }
+
+  describe("Given an ticket json payload") {
+    it("should parse it into a ticket object when schema compiled") {
+      import com.jsonsearcher.json.Deserializer.decodeTicket
+      val decodedTicket = parser.decode[Ticket](JsonString.ticket)
+      //      val expectedResult =
+      //        Ticket()
+
+      decodedTicket match {
+        case Right(t) => println(t)
+        case Left(error) => println(error)
       }
     }
   }
