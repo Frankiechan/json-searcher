@@ -1,7 +1,6 @@
 package com.jsonsearcher.json
 
 import com.jsonsearcher.models.{Organization, Ticket}
-import cats.implicits._
 import io.circe.{ACursor, Decoder}
 
 object Deserializer {
