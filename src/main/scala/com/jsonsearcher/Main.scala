@@ -4,7 +4,7 @@ import com.jsonsearcher.models._
 import com.jsonsearcher.utils.FileReader
 import io.circe._
 import cats.implicits._
-import com.jsonsearcher.core.{Indexer, OrganisationViewGenerator, UserViewGenerator}
+import com.jsonsearcher.core.{Indexer, OrganisationViewGenerator, TicketViewGenerator, UserViewGenerator}
 
 
 object Main extends App {
@@ -73,5 +73,17 @@ object Main extends App {
       case Some(v) => println(v.asJson)
     }
 
+    val ticketView = TicketViewGenerator.generate((a, b, c))
+    val ticketIdIndexedView = Indexer.index[String, TicketView]((t: TicketView) => t.ticket._id, ticketView)
+
+    val ticketSearchResults = ticketIdIndexedView.get("436bf9b0-1147-4c0a-8439-6f79833bff5b") match {
+      case Some(is) => is.map(ticketView.get(_))
+      case None => List.empty
+    }
+
+    println("Tickets")
+    ticketSearchResults.foreach {
+      case Some(v) => println(v.asJson)
+    }
   })
 }

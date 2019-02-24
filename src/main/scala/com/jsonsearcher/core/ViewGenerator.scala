@@ -11,21 +11,13 @@ object UserViewGenerator extends ViewGenerator[Resources, UserView] {
   override def generate(r: (List[User], List[Ticket], List[Organization])): List[UserView] = {
     val (users, tickets, orgs) = r
 
-    val orgsGroupById = orgs.groupBy(_._id)
+    val orgsGroupById = orgs.groupBy(_._id).map{ case(id, l) => (id, l.headOption) }
     val ticketsGroupBySubmitterId = tickets.groupBy(_.submitter_id)
     val ticketsGroupByAssigneeId = tickets.groupBy(_.assignee_id)
 
-    def orgFromUser(orgIdOrNot: Option[Int]): Option[Organization] = {
-      for {
-        orgId <- orgIdOrNot
-        orgs <- orgsGroupById.get(orgId)
-        org <- orgs.headOption
-      } yield org
-    }
-
     users.map(user => UserView(
       user = user,
-      org = orgFromUser(user.organization_id),
+      org = user.organization_id.flatMap(orgsGroupById.getOrElse(_, None)),
       submittedTickets = ticketsGroupBySubmitterId.getOrElse(user._id, List.empty),
       assignedTickets = ticketsGroupByAssigneeId.getOrElse(Some(user._id), List.empty)
     ))
@@ -39,10 +31,26 @@ object OrganisationViewGenerator extends ViewGenerator[Resources, OrganizationVi
     val ticketsGroupByOrgId = tickets.groupBy(_.organization_id)
 
     orgs.map(org => OrganizationView(
-      org=org,
+      org = org,
       users = usersGroupByOrgId.getOrElse(Some(org._id), List.empty),
       tickets = ticketsGroupByOrgId.getOrElse(Some(org._id), List.empty)
     ))
   }
 }
+
+object TicketViewGenerator extends ViewGenerator[Resources, TicketView] {
+  override def generate(r: (List[User], List[Ticket], List[Organization])): List[TicketView] = {
+    val (users, tickets, orgs) = r
+    val orgsGroupById = orgs.groupBy(_._id).map{ case(id, l) => (id, l.headOption) }
+    val usersGroupById = users.groupBy(_._id).map{ case(id, l) => (id, l.headOption) }
+
+    tickets.map(ticket => TicketView(
+      ticket=ticket,
+      org=ticket.organization_id.flatMap(orgsGroupById.getOrElse(_, None)),
+      assignee=ticket.assignee_id.flatMap(usersGroupById.getOrElse(_, None)),
+      submitter = usersGroupById.getOrElse(ticket.submitter_id, None)
+    ))
+  }
+}
+
 
