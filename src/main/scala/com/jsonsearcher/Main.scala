@@ -4,7 +4,7 @@ import com.jsonsearcher.models._
 import com.jsonsearcher.utils.FileReader
 import io.circe._
 import cats.implicits._
-import com.jsonsearcher.core.{Indexer, OrganisationViewGenerator, TicketViewGenerator, UserViewGenerator}
+import com.jsonsearcher.core.{Indexer, OrganizationViewGenerator, TicketViewGenerator, UserViewGenerator}
 
 
 object Main extends App {
@@ -60,7 +60,7 @@ object Main extends App {
       case Some(v) => println(v.asJson)
     }
 
-    val orgView = OrganisationViewGenerator.generate((a, b, c))
+    val orgView = OrganizationViewGenerator.generate((a, b, c))
     val orgIdIndexedView = Indexer.index[Int, OrganizationView]((ov: OrganizationView) => ov.org._id, orgView)
 
     val orgSearchResults = orgIdIndexedView.get(101) match {

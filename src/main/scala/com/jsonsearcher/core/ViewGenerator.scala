@@ -24,7 +24,7 @@ object UserViewGenerator extends ViewGenerator[Resources, UserView] {
   }
 }
 
-object OrganisationViewGenerator extends ViewGenerator[Resources, OrganizationView] {
+object OrganizationViewGenerator extends ViewGenerator[Resources, OrganizationView] {
   override def generate(r: (List[User], List[Ticket], List[Organization])): List[OrganizationView] = {
     val (users, tickets, orgs) = r
     val usersGroupByOrgId = users.groupBy(_.organization_id)
