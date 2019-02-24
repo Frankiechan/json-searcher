@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-core" % circeVersion,
   "io.circe" %% "circe-testing" % circeVersion,
   "io.circe" %% "circe-literal" % circeVersion,
+  "io.circe" %% "circe-generic" % circeVersion,
   "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
   "org.scalacheck" %% "scalacheck" % scalaCheckVersion % Test
 )
