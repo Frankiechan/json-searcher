@@ -8,7 +8,7 @@ trait ViewGenerator[R, V] {
 }
 
 object UserViewGenerator extends ViewGenerator[Resources, UserView] {
-  override def generate(r: (List[User], List[Ticket], List[Organization])): List[UserView] = {
+  override def generate(r: Resources): List[UserView] = {
     val (users, tickets, orgs) = r
 
     val orgsGroupById = orgs.groupBy(_._id).map{ case(id, l) => (id, l.headOption) }
@@ -25,7 +25,7 @@ object UserViewGenerator extends ViewGenerator[Resources, UserView] {
 }
 
 object OrganizationViewGenerator extends ViewGenerator[Resources, OrganizationView] {
-  override def generate(r: (List[User], List[Ticket], List[Organization])): List[OrganizationView] = {
+  override def generate(r: Resources): List[OrganizationView] = {
     val (users, tickets, orgs) = r
     val usersGroupByOrgId = users.groupBy(_.organization_id)
     val ticketsGroupByOrgId = tickets.groupBy(_.organization_id)
@@ -39,7 +39,7 @@ object OrganizationViewGenerator extends ViewGenerator[Resources, OrganizationVi
 }
 
 object TicketViewGenerator extends ViewGenerator[Resources, TicketView] {
-  override def generate(r: (List[User], List[Ticket], List[Organization])): List[TicketView] = {
+  override def generate(r: Resources): List[TicketView] = {
     val (users, tickets, orgs) = r
     val orgsGroupById = orgs.groupBy(_._id).map{ case(id, l) => (id, l.headOption) }
     val usersGroupById = users.groupBy(_._id).map{ case(id, l) => (id, l.headOption) }

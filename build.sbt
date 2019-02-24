@@ -13,6 +13,7 @@ val circeVersion = "0.10.1"
 val catsVersion = "1.1.0"
 val jackson = "2.9.3"
 val scalaCheckVersion = "1.13.5"
+val attoVersion = "0.6.5"
 
 libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-effect" % catsVersion,
@@ -21,6 +22,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-testing" % circeVersion,
   "io.circe" %% "circe-literal" % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
+  "org.tpolecat" %% "atto-core" % attoVersion,
+  "org.tpolecat" %% "atto-refined" % attoVersion,
   "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
   "org.scalacheck" %% "scalacheck" % scalaCheckVersion % Test
 )
