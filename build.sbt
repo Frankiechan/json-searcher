@@ -5,13 +5,9 @@ version := "1.0"
 scalaVersion := "2.12.7"
 
 
-val awsJavaSdk = "1.11.413"
-val awsKcl = "1.9.3"
-val gcpBigquery = "1.52.0"
 val scalaTestVersion = "3.0.4"
 val circeVersion = "0.10.1"
 val catsVersion = "1.1.0"
-val jackson = "2.9.3"
 val scalaCheckVersion = "1.13.5"
 val attoVersion = "0.6.5"
 

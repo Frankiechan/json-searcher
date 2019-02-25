@@ -1,76 +1,44 @@
 package com.jsonsearcher
 
+import cats.effect.{ContextShift, IO, Sync}
 import cats.implicits._
-import com.jsonsearcher.core.{Indexer, OrganizationViewGenerator, TicketViewGenerator, UserViewGenerator}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.jsonsearcher.core._
 import com.jsonsearcher.models._
 import com.jsonsearcher.utils.ResourcesLoader
 
 
 object Main extends App {
 
-  val resources = ResourcesLoader.load()
-  val userView = resources.mapN((a, b, c) => UserViewGenerator.generate((a, b, c)))
+  implicit val contextShift = IO.contextShift(global)
+  Runtime[IO]().unsafeRunSync()
 
-  userView.map(u => {
-    val userIdIndexedView = Indexer.index[Int, UserView]((uv: UserView) => uv.user._id, u)
+}
 
-    val userSearchResults = userIdIndexedView.get(69) match {
-      case Some(is) => is.map(u.get(_))
-      case None => List.empty
-    }
+object Runtime {
+  def apply[F[_]]()(implicit F: Sync[F], cs: ContextShift[F]): F[Unit] = {
+    val resourcesOrNot = ResourcesLoader.load()
+    val userViewOrNot = resourcesOrNot.mapN((users, tickets, orgs) => UserViewGenerator.generate((users, tickets, orgs)))
 
+    val searchResultsOrNot = userViewOrNot.flatMap(u => F.pure(
+      {
+        val st = IntSearchTerm("_id", 1)
+
+
+
+        val searchBoard = SearchBoard(u, UserIndices.preload(u))
+
+        for {
+          index <- searchBoard.indices.intIndices.get("organization_id")
+          positions <- index.get(101)
+        } yield positions.map(u.lift(_))
+
+      }
+    ))
     import io.circe.generic.auto._
     import io.circe.syntax._
 
-    println("User")
-    userSearchResults.foreach {
-      case Some(v) => println(v.asJson)
-    }
-  })
-
-
-  //  resources.mapN((a, b, c) => {
-  //    val userView = UserViewGenerator.generate((a, b, c))
-  //
-  //    val userIdIndexedView = Indexer.index[Int, UserView]((uv: UserView) => uv.user._id, userView)
-  //
-  //    val userSearchResults = userIdIndexedView.get(69) match {
-  //      case Some(is) => is.map(userView.get(_))
-  //      case None => List.empty
-  //    }
-  //
-  //    import io.circe.generic.auto._
-  //    import io.circe.syntax._
-  //
-  //    println("User")
-  //    userSearchResults.foreach {
-  //      case Some(v) => println(v.asJson)
-  //    }
-  //
-  //    val orgView = OrganizationViewGenerator.generate((a, b, c))
-  //    val orgIdIndexedView = Indexer.index[Int, OrganizationView]((ov: OrganizationView) => ov.org._id, orgView)
-  //
-  //    val orgSearchResults = orgIdIndexedView.get(101) match {
-  //      case Some(is) => is.map(orgView.get(_))
-  //      case None => List.empty
-  //    }
-  //
-  //    println("Org")
-  //    orgSearchResults.foreach {
-  //      case Some(v) => println(v.asJson)
-  //    }
-  //
-  //    val ticketView = TicketViewGenerator.generate((a, b, c))
-  //    val ticketIdIndexedView = Indexer.index[String, TicketView]((t: TicketView) => t.ticket._id, ticketView)
-  //
-  //    val ticketSearchResults = ticketIdIndexedView.get("436bf9b0-1147-4c0a-8439-6f79833bff5b") match {
-  //      case Some(is) => is.map(ticketView.get(_))
-  //      case None => List.empty
-  //    }
-  //
-  //    println("Tickets")
-  //    ticketSearchResults.foreach {
-  //      case Some(v) => println(v.asJson)
-  //    }
-  //  })
+    searchResultsOrNot.flatMap(x => F.pure(x.map(_.asJson).foreach(println(_))))
+  }
 }

@@ -1,7 +1,11 @@
 package com.jsonsearcher.core
 
+import com.jsonsearcher.Index
+import com.jsonsearcher.models.{Indices, UserView}
+import com.jsonsearcher.utils.DropNoneIndex
+
 object Indexer {
-  def index[A, T](f: T => A, origin: List[T]): Map[A, List[Int]] = {
+  def index[A, T](f: T => A, origin: List[T]): Index[A] = {
     origin
       .map(f(_))
       .zipWithIndex
@@ -9,5 +13,71 @@ object Indexer {
         case ((key, index), map) =>
           map updated(key, index :: map.getOrElse(key, Nil))
       }
+  }
+}
+
+object UserIndices {
+
+  def _id(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user._id, userViews)
+
+  def url(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.url, userViews)
+
+  def external_id(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.external_id, userViews)
+
+  def name(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.name, userViews)
+
+  def alias(userViews: List[UserView]) =
+    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.alias, userViews))
+
+  def created_at(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.created_at, userViews)
+
+  def active(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.active, userViews)
+
+  def verified(userViews: List[UserView]) =
+    DropNoneIndex.filter(Indexer.index[Option[Boolean], UserView]((u: UserView) => u.user.verified, userViews))
+
+  def shared(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.shared, userViews)
+
+  def locale(userViews: List[UserView]) =
+    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.locale, userViews))
+
+  def timezone(userViews: List[UserView]) =
+    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.timezone, userViews))
+
+  def last_login_at(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.last_login_at, userViews)
+
+  def email(userViews: List[UserView]) =
+    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.email, userViews))
+
+  def phone(userViews: List[UserView]) =
+    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.phone, userViews))
+
+  def signature(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.signature, userViews)
+
+  def organization_id(userViews: List[UserView]) =
+    DropNoneIndex.filter(Indexer.index[Option[Int], UserView]((u: UserView) => u.user.organization_id, userViews))
+
+  //  def tags(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.tags, userViews)
+  def suspended(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.suspended, userViews)
+
+  def role(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.role, userViews)
+
+  def preload(u: List[UserView]): Indices = {
+
+    val intIndices = Map(
+      "_id" -> _id(u),
+      "organization_id" -> organization_id(u)
+    )
+
+    val strIndices = Map(
+      "name" -> name(u),
+      "alias" -> alias(u)
+    )
+
+    val boolIndices = Map(
+      "verified" -> verified(u)
+    )
+
+    Indices(intIndices, strIndices, boolIndices)
   }
 }
