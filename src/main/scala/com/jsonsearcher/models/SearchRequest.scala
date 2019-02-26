@@ -1,6 +1,11 @@
 package com.jsonsearcher.models
 
-sealed trait SearchRequest
-case class UserSearchRequest(searchTerm: SearchTerm)
-case class TicketSearchRequest(searchTerm: SearchTerm)
-case class OrgSearchRquest(searchTerm: SearchTerm)
+sealed trait SearchRequest {
+  def searchTerm: SearchTerm
+}
+
+case class UserSearchRequest(searchTerm: SearchTerm) extends SearchRequest
+
+case class TicketSearchRequest(searchTerm: SearchTerm) extends SearchRequest
+
+case class OrgSearchRquest(searchTerm: SearchTerm) extends SearchRequest
