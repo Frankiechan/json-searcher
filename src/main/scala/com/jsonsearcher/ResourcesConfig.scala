@@ -13,5 +13,4 @@ object ResourcesConfig {
     val users = Paths.get(resourcesDir, "users.json")
 
   }
-
 }
