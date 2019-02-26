@@ -1,6 +1,6 @@
 package com.jsonsearcher.models
 
-case class User(_id: Int,
+case class User(_id: Long,
                 url: String,
                 external_id: String,
                 name: String,
@@ -15,7 +15,7 @@ case class User(_id: Int,
                 email: Option[String],
                 phone: Option[String],
                 signature: String,
-                organization_id: Option[Int],
+                organization_id: Option[Long],
                 tags: List[String],
                 suspended: Boolean,
                 role: String

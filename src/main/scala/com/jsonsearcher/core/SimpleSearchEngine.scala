@@ -3,7 +3,7 @@ package com.jsonsearcher.core
 import com.jsonsearcher.Index
 import com.jsonsearcher.models._
 
-case class Indices(intIndices: Map[String, Index[Int]],
+case class Indices(longIndices: Map[String, Index[Long]],
                    StringIndices: Map[String, Index[String]],
                    BooleanIndices: Map[String, Index[Boolean]])
 
@@ -13,7 +13,7 @@ class SimpleSearchEngine(private val views: List[View], private val indices: Ind
 
     val positionsOrNot: Option[List[Int]] = searchTerm match {
       case st: StringSearchTerm => indices.StringIndices.get(st.term).flatMap(_.get(st.content))
-      case st: IntSearchTerm => indices.intIndices.get(st.term).flatMap(_.get(st.content))
+      case st: LongSearchTerm => indices.longIndices.get(st.term).flatMap(_.get(st.content))
     }
 
     positionsOrNot match {

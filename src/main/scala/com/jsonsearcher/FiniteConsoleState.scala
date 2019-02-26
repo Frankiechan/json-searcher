@@ -119,8 +119,9 @@ class ConsoleRun[F[_]]()(implicit F: Sync[F], C: Console[F]) {
 object FastQuit {
   def readLnOrQuit[F[_]]()(implicit F: Sync[F], C: Console[F]): F[String] = {
     for {
-      n <- C.readLn
-      r <- if (n.toLowerCase == "quit") F.pure(sys.exit(0)) else F.pure(n)
+      input <- C.readLn
+      cleanInput <- F.pure(input.replaceAll("[^a-zA-Z0-9_-]", ""))
+      r <- if (cleanInput.toLowerCase == "quit") F.pure(sys.exit(0)) else F.pure(cleanInput)
     } yield r
   }
 }

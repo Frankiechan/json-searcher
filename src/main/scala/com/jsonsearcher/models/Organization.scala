@@ -1,6 +1,6 @@
 package com.jsonsearcher.models
 
-case class Organization(_id: Int,
+case class Organization(_id: Long,
                         url: String,
                         external_id: String,
                         name: String,

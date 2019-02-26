@@ -11,7 +11,7 @@ object Deserializer {
 
 object DeserializationDefinition {
   def decodeOrg(cursor: ACursor): Decoder.Result[Organization] = for {
-    _id <- cursor.get[Int]("_id")
+    _id <- cursor.get[Long]("_id")
     url <- cursor.get[String]("url")
     external_id <- cursor.get[String]("external_id")
     name <- cursor.get[String]("name")
@@ -41,9 +41,9 @@ object DeserializationDefinition {
     description <- cursor.get[Option[String]]("description")
     priority <- cursor.get[String]("priority")
     status <- cursor.get[String]("status")
-    submitter_id <- cursor.get[Int]("submitter_id")
-    assignee_id <- cursor.get[Option[Int]]("assignee_id")
-    organization_id <- cursor.get[Option[Int]]("organization_id")
+    submitter_id <- cursor.get[Long]("submitter_id")
+    assignee_id <- cursor.get[Option[Long]]("assignee_id")
+    organization_id <- cursor.get[Option[Long]]("organization_id")
     tags <- cursor.get[List[String]]("tags")
     has_incidents <- cursor.get[Boolean]("has_incidents")
     due_at <- cursor.get[Option[String]]("due_at")
@@ -66,7 +66,7 @@ object DeserializationDefinition {
     via = via)
 
   def decodeUser(cursor: ACursor): Decoder.Result[User] = for {
-    _id <- cursor.get[Int]("_id")
+    _id <- cursor.get[Long]("_id")
     url <- cursor.get[String]("url")
     external_id <- cursor.get[String]("external_id")
     name <- cursor.get[String]("name")
@@ -81,7 +81,7 @@ object DeserializationDefinition {
     email <- cursor.get[Option[String]]("email")
     phone <- cursor.get[Option[String]]("phone")
     signature <- cursor.get[String]("signature")
-    organization_id <- cursor.get[Option[Int]]("organization_id")
+    organization_id <- cursor.get[Option[Long]]("organization_id")
     tags <- cursor.get[List[String]]("tags")
     suspended <- cursor.get[Boolean]("suspended")
     role <- cursor.get[String]("role")

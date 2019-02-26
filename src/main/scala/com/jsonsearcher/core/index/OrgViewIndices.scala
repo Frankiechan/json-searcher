@@ -43,7 +43,7 @@ object OrgViewIndices {
   def signature(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.signature, userViews)
 
   def organization_id(userViews: List[UserView]) =
-    DropNoneIndex.filter(Indexer.index[Option[Int], UserView]((u: UserView) => u.user.organization_id, userViews))
+    DropNoneIndex.filter(Indexer.index[Option[Long], UserView]((u: UserView) => u.user.organization_id, userViews))
 
   //  def tags(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.tags, userViews)
   def suspended(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.suspended, userViews)
