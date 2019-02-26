@@ -2,8 +2,6 @@ package com.jsonsearcher
 
 import cats.effect.{ContextShift, IO, Sync}
 import cats.implicits._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import com.jsonsearcher.core._
 import com.jsonsearcher.core.index.{OrgViewIndices, TicketViewIndices, UserViewIndices}
 import com.jsonsearcher.models._
@@ -12,13 +10,12 @@ import com.jsonsearcher.utils.ResourcesLoader
 
 object Main extends App {
 
-  implicit val contextShift = IO.contextShift(global)
   Runtime[IO]().unsafeRunSync()
 
 }
 
 object Runtime {
-  def apply[F[_]]()(implicit F: Sync[F], cs: ContextShift[F]): F[Unit] = {
+  def apply[F[_]]()(implicit F: Sync[F]): F[Unit] = {
     val searchEngineOrNot: F[SimpleSearchEngine] = SaerchEngineInitialiser.userView().init()
 
     val searchResultsOrNot = searchEngineOrNot.flatMap(s => F.pure({

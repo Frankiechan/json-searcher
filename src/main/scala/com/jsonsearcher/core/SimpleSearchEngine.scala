@@ -1,6 +1,5 @@
 package com.jsonsearcher.core
 
-import cats.implicits._
 import com.jsonsearcher.Index
 import com.jsonsearcher.models._
 
