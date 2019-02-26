@@ -1,13 +1,11 @@
 package com.jsonsearcher.utils
 
-import java.io.{FileInputStream, InputStream}
+import java.io.FileInputStream
 import java.nio.file.Path
 
 import cats.MonadError
 import cats.implicits._
-import com.jsonsearcher.{AppError, NoSuchFileException}
-
-import scala.util.Try
+import com.jsonsearcher.NoSuchFileException
 
 
 object FileReader {

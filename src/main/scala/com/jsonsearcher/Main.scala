@@ -5,6 +5,7 @@ import cats.implicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.jsonsearcher.core._
+import com.jsonsearcher.core.index.UserViewIndices
 import com.jsonsearcher.models._
 import com.jsonsearcher.utils.ResourcesLoader
 
@@ -24,7 +25,7 @@ object Runtime {
     val searchResultsOrNot = userViewOrNot.flatMap(u => F.pure(
       {
         val st = IntSearchTerm("_id", 1)
-        val searchBoard = SimpleSearchEngine(u, UserIndices.preload(u))
+        val searchBoard = SimpleSearchEngine(u, UserViewIndices.preload(u))
 
         searchBoard.search(st)
       }

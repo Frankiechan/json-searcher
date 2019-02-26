@@ -1,22 +1,10 @@
-package com.jsonsearcher.core
+package com.jsonsearcher.core.index
 
-import com.jsonsearcher.Index
+import com.jsonsearcher.core.Indices
 import com.jsonsearcher.models.UserView
 import com.jsonsearcher.utils.DropNoneIndex
 
-object Indexer {
-  def index[A, T](f: T => A, origin: List[T]): Index[A] = {
-    origin
-      .map(f(_))
-      .zipWithIndex
-      .foldRight(Map[A, List[Int]]()) {
-        case ((key, index), map) =>
-          map updated(key, index :: map.getOrElse(key, Nil))
-      }
-  }
-}
-
-object UserIndices {
+object UserViewIndices {
 
   def _id(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user._id, userViews)
 
