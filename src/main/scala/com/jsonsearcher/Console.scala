@@ -1,17 +1,17 @@
 package com.jsonsearcher
 
-import cats.Monad
-import cats.effect.{Console, IO}
+import cats.effect.{Console, IO, Sync}
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import com.jsonsearcher.core.SimpleSearchEngine
 import com.jsonsearcher.models.ConsoleInteractions._
+import com.jsonsearcher.utils.UserSearchRequestBuilder
 
 object ConsoleMain extends App {
 
   import cats.effect.Console.implicits._
 
-  val model = new InteractionModel[IO](Start, None)
+  val model = new InteractionModel[IO](Start, None, new UserSearchRequestBuilder[IO]())
 
   while (true) {
     model.interact("").unsafeRunSync()
@@ -19,10 +19,13 @@ object ConsoleMain extends App {
 }
 
 class InteractionModel[F[_]](private var stage: ConsoleInteractionStage,
-                             private val searchEngine: Option[SimpleSearchEngine])
-                            (implicit F: Monad[F], C: Console[F]) {
+                             private var searchEngine: Option[SimpleSearchEngine],
+                             private var searchRequestBuild: UserSearchRequestBuilder[F])
+                            (implicit F: Sync[F], C: Console[F]) {
 
   import Conversation._
+  import io.circe.generic.auto._
+  import io.circe.syntax._
 
   def interact(input: String): F[Unit] = {
     this.stage match {
@@ -49,7 +52,8 @@ class InteractionModel[F[_]](private var stage: ConsoleInteractionStage,
           _ <- C.putStrLn(searchInstruction)
           n <- readLnOrQuit
           _ <- n match {
-            case "1" => C.putStrLn("WIP load userViewSearchEngine")
+            case "1" =>
+              SaerchEngineInitialiser.userView().init().flatMap(s => searchEngineInit(s))
             case "2" => C.putStrLn("WIP load TicketViewSearchEngine")
             case "3" => C.putStrLn("WIP load OrgViewSearchEngine")
           }
@@ -64,14 +68,21 @@ class InteractionModel[F[_]](private var stage: ConsoleInteractionStage,
       case EnterSearchTerm =>
         for {
           _ <- C.putStrLn(enterSearchTerm)
-          _ <- readLnOrQuit
+          n <- readLnOrQuit
+          _ <- F.pure(searchRequestBuild.withTerm(n))
           _ <- C.putStrLn("WIP load search term")
           _ <- update(EnterSearchValue)
         } yield ()
       case EnterSearchValue =>
         for {
-          _ <- C.putStrLn(enterSearchValue)
-          _ <- readLnOrQuit
+          _       <- C.putStrLn(enterSearchValue)
+          n       <- readLnOrQuit
+          _       <- F.pure(searchRequestBuild.withContent(n))
+          results <- searchEngine match {
+            case Some(s) => searchRequestBuild.build().map(x => s.search(x.searchTerm))
+            case None => F.raiseError(new RuntimeException("No search Engine detext"))
+          }
+          _ <- F.pure(results.map(x => x.map(_.asJson)).foreach(println(_)))
           _ <- C.putStrLn("WIP load search value and return searchResult")
           _ <- update(SearchCompleted)
         } yield ()
@@ -90,6 +101,8 @@ class InteractionModel[F[_]](private var stage: ConsoleInteractionStage,
       r <- if (n.toLowerCase == "quit") F.pure(sys.exit(0)) else F.pure(n)
     } yield r
   }
+
+  private def searchEngineInit(s: SimpleSearchEngine): F[Unit] = F.pure(this.searchEngine = Some(s))
 }
 
 object Conversation {
