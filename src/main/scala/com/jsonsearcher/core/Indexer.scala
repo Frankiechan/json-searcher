@@ -1,7 +1,7 @@
 package com.jsonsearcher.core
 
 import com.jsonsearcher.Index
-import com.jsonsearcher.models.{Indices, UserView}
+import com.jsonsearcher.models.UserView
 import com.jsonsearcher.utils.DropNoneIndex
 
 object Indexer {

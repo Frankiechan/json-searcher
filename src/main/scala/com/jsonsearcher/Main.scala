@@ -24,16 +24,9 @@ object Runtime {
     val searchResultsOrNot = userViewOrNot.flatMap(u => F.pure(
       {
         val st = IntSearchTerm("_id", 1)
+        val searchBoard = SimpleSearchEngine(u, UserIndices.preload(u))
 
-
-
-        val searchBoard = SearchBoard(u, UserIndices.preload(u))
-
-        for {
-          index <- searchBoard.indices.intIndices.get("organization_id")
-          positions <- index.get(101)
-        } yield positions.map(u.lift(_))
-
+        searchBoard.search(st)
       }
     ))
     import io.circe.generic.auto._
