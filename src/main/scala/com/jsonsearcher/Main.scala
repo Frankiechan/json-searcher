@@ -14,23 +14,23 @@ object Main extends App {
 
 }
 
-class SearchEngineInitialiser[F[_], V <: View](private val viewGnerator: Resources => List[V],
-                                               private val preloadIndices: List[V] => Indices,
-                                              )(implicit F: Sync[F]) {
-  def init(): F[SimpleSearchEngine] = {
+class SearchStoreInitialiser[F[_], V <: View](private val viewGnerator: Resources => List[V],
+                                              private val preloadIndexDictionaries: List[V] => IndexDictionaries,
+                                             )(implicit F: Sync[F]) {
+  def init(): F[SearchStore] = {
     val resourcesOrNot = ResourcesLoader.load[F]()
 
     for {
       views <- resourcesOrNot.mapN((users, tickets, orgs) => viewGnerator((users, tickets, orgs)))
-      simpleSearchEngine <- F.pure(SimpleSearchEngine(views, preloadIndices(views)))
-    } yield simpleSearchEngine
+      searchStore <- F.pure(SearchStore(views, preloadIndexDictionaries(views)))
+    } yield searchStore
   }
 }
 
-object SearchEngineInitialiser {
-  def userView[F[_]]()(implicit F: Sync[F]): SearchEngineInitialiser[F, UserView] = new SearchEngineInitialiser(UserViewGenerator.generate, UserViewIndices.preload)
+object SearchStoreInitialiser {
+  def userView[F[_]]()(implicit F: Sync[F]): SearchStoreInitialiser[F, UserView] = new SearchStoreInitialiser(UserViewGenerator.generate, UserViewIndices.preload)
 
-  def ticketView[F[_]]()(implicit F: Sync[F]): SearchEngineInitialiser[F, TicketView] = new SearchEngineInitialiser(TicketViewGenerator.generate, TicketViewIndices.preload)
+  def ticketView[F[_]]()(implicit F: Sync[F]): SearchStoreInitialiser[F, TicketView] = new SearchStoreInitialiser(TicketViewGenerator.generate, TicketViewIndices.preload)
 
-  def orgView[F[_]]()(implicit F: Sync[F]): SearchEngineInitialiser[F, OrganizationView] = new SearchEngineInitialiser(OrganizationViewGenerator.generate, OrgViewIndices.preload)
+  def orgView[F[_]]()(implicit F: Sync[F]): SearchStoreInitialiser[F, OrganizationView] = new SearchStoreInitialiser(OrganizationViewGenerator.generate, OrgViewIndices.preload)
 }

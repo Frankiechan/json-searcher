@@ -25,7 +25,7 @@ object SearchTermBuilder {
 object UserSearchTermBuilder {
   def build[F[_]](term: String)(content: String)(implicit F: Sync[F]): F[SearchTerm] = {
     val searchTerm: F[SearchTerm] = term match {
-      case "_id" => F.delay(content.toInt).map(i => LongSearchTerm(term, i))
+      case "_id" => F.delay(content.toLong).map(i => LongSearchTerm(term, i))
       case "url" => F.pure(StringSearchTerm(term, content))
       case _ => F.raiseError(NoSuchSearchFieldException(s"${term} is not a support SearchField"))
     }

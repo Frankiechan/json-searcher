@@ -1,6 +1,6 @@
 package com.jsonsearcher.core.index
 
-import com.jsonsearcher.core.Indices
+import com.jsonsearcher.core.IndexDictionaries
 import com.jsonsearcher.models.{OrganizationView, UserView}
 import com.jsonsearcher.utils.DropNoneIndex
 
@@ -50,7 +50,7 @@ object OrgViewIndices {
 
   def role(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.role, userViews)
 
-  def preload(u: List[OrganizationView]): Indices = {
+  def preload(u: List[OrganizationView]): IndexDictionaries = {
     ???
   }
 }

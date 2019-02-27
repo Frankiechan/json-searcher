@@ -1,11 +1,14 @@
 package com.jsonsearcher
 
+import cats.data.NonEmptyList
 import cats.effect.Console.implicits._
 import cats.effect.{Console, IO, Sync}
 import cats.implicits._
+import com.jsonsearcher.core.SearchOperation
 import com.jsonsearcher.models._
 
-class ConsoleRun[F[_]]()(implicit F: Sync[F], C: Console[F]) {
+class ConsoleRun[F[_]](searchOperation: (SearchTerm, SearchStore) => F[NonEmptyList[View]])
+                      (implicit F: Sync[F], C: Console[F]) {
 
   import FastQuit.readLnOrQuit
 
@@ -54,11 +57,11 @@ class ConsoleRun[F[_]]()(implicit F: Sync[F], C: Console[F]) {
       n <- readLnOrQuit
       next <- n match {
         case "1" =>
-          SearchEngineInitialiser.userView[F]().init().map(EnterSearchTerm(_, UserSearchRequest.apply))
+          SearchStoreInitialiser.userView[F]().init().map(EnterSearchTerm(_, UserSearchRequest.apply))
         case "2" =>
-          SearchEngineInitialiser.ticketView[F]().init().map(EnterSearchTerm(_, TicketSearchRequest.apply))
+          SearchStoreInitialiser.ticketView[F]().init().map(EnterSearchTerm(_, TicketSearchRequest.apply))
         case "3" =>
-          SearchEngineInitialiser.orgView[F]().init().map(EnterSearchTerm(_, OrgSearchRequest.apply))
+          SearchStoreInitialiser.orgView[F]().init().map(EnterSearchTerm(_, OrgSearchRequest.apply))
         case _ => F.pure(Instruction)
       }
     } yield next
@@ -73,10 +76,10 @@ class ConsoleRun[F[_]]()(implicit F: Sync[F], C: Console[F]) {
       _ <- C.putStrLn(enterSearchTerm)
       term <- readLnOrQuit
       next <-
-        F.pure(EnterSearchValue(state.searchEngine, state.requestConstructor, term))
+        F.pure(EnterSearchValue(state.searchStore, state.requestConstructor, term))
     } yield next
 
-    HandleError[F](process, EnterSearchTerm(state.searchEngine, state.requestConstructor))
+    HandleError[F](process, EnterSearchTerm(state.searchStore, state.requestConstructor))
   }
 
   def atEnterSearchValue(state: EnterSearchValue): F[FiniteConsoleState] = {
@@ -90,13 +93,13 @@ class ConsoleRun[F[_]]()(implicit F: Sync[F], C: Console[F]) {
       content <- readLnOrQuit
       request <- F.pure(state.requestConstructor(state.term, content))
       searchTerm <- SearchTermBuilder.build[F](request)
-      results <- F.pure(state.searchEngine.search(searchTerm))
-      _ <- F.pure(results.map(x => x.map(_.asJson)).foreach(println(_)))
+      results <- searchOperation(searchTerm, state.searchStore)
+      _ <- F.pure(results.map(_.asJson).map(println(_)))
       _ <- C.putStrLn("Search Completed")
-      next <- F.pure(EnterSearchTerm(state.searchEngine, state.requestConstructor))
+      next <- F.pure(EnterSearchTerm(state.searchStore, state.requestConstructor))
     } yield next
 
-    HandleError[F](process, EnterSearchTerm(state.searchEngine, state.requestConstructor))
+    HandleError[F](process, EnterSearchTerm(state.searchStore, state.requestConstructor))
   }
 }
 
@@ -122,7 +125,7 @@ object HandleError {
 
 object ConsoleApp {
   def start()= {
-    val consoleRun = new ConsoleRun[IO]()
+    val consoleRun = new ConsoleRun[IO](SearchOperation.apply[IO])
     var stateInIO: IO[FiniteConsoleState] = consoleRun.atStart()
 
     while (true) {

@@ -10,9 +10,15 @@ case class NoSuchFileException(msg: String, error: Throwable) extends AppError
 
 case class JsonStringFailedToDecodeException(msg: String, error: Throwable) extends AppError
 
+case class NoSuchSearchValueException(msg: String) extends AppError
+
 case class NoSuchSearchFieldException(msg: String) extends AppError
 
+case class NoSuchDictionaryTypeException(msg: String) extends AppError
+
 case class ToLongParseErrorMakeIncompatibleSearchValue(msg: String, error: Throwable) extends AppError
+
+
 
 object ErrorHandler {
   def handle[F[_]](throwable: Throwable)(implicit F: Sync[F]): F[Unit] = {

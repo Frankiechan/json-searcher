@@ -1,6 +1,6 @@
 package com.jsonsearcher.core.index
 
-import com.jsonsearcher.core.Indices
+import com.jsonsearcher.core.IndexDictionaries
 import com.jsonsearcher.models.UserView
 import com.jsonsearcher.utils.DropNoneIndex
 
@@ -50,7 +50,7 @@ object UserViewIndices {
 
   def role(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.role, userViews)
 
-  def preload(u: List[UserView]): Indices = {
+  def preload(u: List[UserView]): IndexDictionaries = {
 
     val longIndices = Map(
       "_id" -> _id(u),
@@ -66,6 +66,6 @@ object UserViewIndices {
       "verified" -> verified(u)
     )
 
-    Indices(longIndices, strIndices, boolIndices)
+    IndexDictionaries(longIndices, strIndices, boolIndices)
   }
 }
