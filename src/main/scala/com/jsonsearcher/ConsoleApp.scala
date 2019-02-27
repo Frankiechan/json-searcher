@@ -8,6 +8,26 @@ import com.jsonsearcher.core.{SearchOperation, SearchStoreInitializer, SearchTer
 import com.jsonsearcher.models._
 import com.jsonsearcher.utils.{SearchResultPrettyPrinter, SearchableFieldsPrinter}
 
+
+object ConsoleApp {
+  def start() = {
+    val consoleRun = new ConsoleRun[IO](SearchOperation.apply[IO])
+    var stateInIO: IO[FiniteConsoleState] = consoleRun.atStart()
+
+    while (true) {
+      stateInIO = stateInIO.unsafeRunSync() match {
+        case Start => consoleRun.atStart()
+        case Instruction => consoleRun.atInstruction()
+        case StartSearch => consoleRun.atStartSearch()
+        case SearchableFields => consoleRun.atListOfSearchableFields()
+        case s: EnterSearchTerm => consoleRun.atEnterSearchTerm(s)
+        case s: EnterSearchValue => consoleRun.atEnterSearchValue(s)
+        case s: OperateSearch => consoleRun.atOperatingSearch(s)
+      }
+    }
+  }
+}
+
 class ConsoleRun[F[_]](searchOperation: (SearchTerm, SearchStore) => F[NonEmptyList[View]])
                       (implicit F: Sync[F], C: Console[F]) {
 
@@ -145,24 +165,5 @@ object HandleError {
       case Left(e) =>
         ErrorHandler.handle[F](e) >> F.pure(back2)
     })
-  }
-}
-
-object ConsoleApp {
-  def start() = {
-    val consoleRun = new ConsoleRun[IO](SearchOperation.apply[IO])
-    var stateInIO: IO[FiniteConsoleState] = consoleRun.atStart()
-
-    while (true) {
-      stateInIO = stateInIO.unsafeRunSync() match {
-        case Start => consoleRun.atStart()
-        case Instruction => consoleRun.atInstruction()
-        case StartSearch => consoleRun.atStartSearch()
-        case SearchableFields => consoleRun.atListOfSearchableFields()
-        case s: EnterSearchTerm => consoleRun.atEnterSearchTerm(s)
-        case s: EnterSearchValue => consoleRun.atEnterSearchValue(s)
-        case s: OperateSearch => consoleRun.atOperatingSearch(s)
-      }
-    }
   }
 }
