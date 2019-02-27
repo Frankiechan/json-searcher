@@ -22,7 +22,7 @@ object UserSearchTermBuilder {
         case "_id" | "organization_id" => longSearchTerm(term, content)
         case "url" | "external_id" | "name" | "alias"
              | "created_at" | "locale" | "timezone" | "last_login_at"
-             | "email" | "phone" | "signature" | "tags" => StringSearchTerm(term, content)
+             | "email" | "phone" | "signature" | "tags" | "role" => StringSearchTerm(term, content)
         case "active" | "verified" | "shared" | "suspended" => booleanSearchTerm(term, content)
         case _ => throw NoSuchSearchFieldException(s"${term} is not a support SearchField")
       }
