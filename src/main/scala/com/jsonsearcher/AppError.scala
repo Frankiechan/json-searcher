@@ -14,9 +14,13 @@ case class NoSuchSearchValueException(msg: String) extends AppError
 
 case class NoSuchSearchFieldException(msg: String) extends AppError
 
+case class NoSuchSearchIndexException(msg: String) extends AppError
+
 case class NoSuchDictionaryTypeException(msg: String) extends AppError
 
 case class ToLongParseErrorMakeIncompatibleSearchValue(msg: String, error: Throwable) extends AppError
+
+case class ToBooleanParseErrorMakeIncompatibleSearchValue(msg: String, error: Throwable) extends AppError
 
 
 

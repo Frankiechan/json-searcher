@@ -2,8 +2,8 @@ package com.jsonsearcher.core
 
 import cats.MonadError
 import cats.implicits._
-import com.jsonsearcher.models.{LongSearchTerm, SearchTerm, StringSearchTerm}
-import com.jsonsearcher.{Index, IndexDictionary, NoSuchSearchFieldException, NoSuchSearchValueException}
+import com.jsonsearcher._
+import com.jsonsearcher.models.{BooleanSearchTerm, LongSearchTerm, SearchTerm, StringSearchTerm}
 
 object ServeIndices {
   def apply[F[_]](searchTerm: SearchTerm, indexDicts: IndexDictionaries)(implicit F: MonadError[F, Throwable]): F[List[Int]] = {
@@ -12,6 +12,8 @@ object ServeIndices {
         searchOnDictionary[F, Long](term, content, indexDicts.longIndexDictionary)
       case StringSearchTerm(term, content) =>
         searchOnDictionary[F, String](term, content, indexDicts.stringIndexDictionary)
+      case BooleanSearchTerm(term, content) =>
+        searchOnDictionary[F, Boolean](term, content, indexDicts.boolIndexDictionary)
     }
   }
 
@@ -25,7 +27,7 @@ object ServeIndices {
       * therefore no 'withFilter' method which required by For Comprehension
       */
     val indexForTermOrNot: F[Index[T]] =
-      F.fromOption(indexDictionary.get(term), NoSuchSearchFieldException(s"${term} is not a support SearchField"))
+      F.fromOption(indexDictionary.get(term), NoSuchSearchIndexException(s"${term} is not a support index"))
     val indicesOrNot: F[List[Int]] = indexForTermOrNot.flatMap(index =>
       F.fromOption(index.get(content),
         NoSuchSearchValueException(s"Search value: (${content}) could not be found in key: ${term}"))

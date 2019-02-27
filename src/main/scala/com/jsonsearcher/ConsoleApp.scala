@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import cats.effect.Console.implicits._
 import cats.effect.{Console, IO, Sync}
 import cats.implicits._
-import com.jsonsearcher.core.{SearchOperation, SearchStoreInitializer}
+import com.jsonsearcher.core.{SearchOperation, SearchStoreInitializer, SearchTermBuilder}
 import com.jsonsearcher.models._
 import com.jsonsearcher.utils.{SearchResultPrettyPrinter, SearchableFieldsPrinter}
 

@@ -51,6 +51,6 @@ object OrgViewIndices {
   def role(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.role, userViews)
 
   def preload(u: List[OrganizationView]): IndexDictionaries = {
-    ???
+    IndexDictionaries(Map(), Map(), Map())
   }
 }

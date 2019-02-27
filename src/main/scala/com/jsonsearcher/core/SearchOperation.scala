@@ -8,11 +8,7 @@ import com.jsonsearcher.models._
 
 object SearchOperation {
   def apply[F[_]](searchTerm: SearchTerm, searchStore: SearchStore)(implicit F: MonadError[F, Throwable]): F[NonEmptyList[View]] = {
-    val indicesOrNot: F[List[Int]] = searchTerm match {
-      case StringSearchTerm(term, content) => ServeIndices[F](searchTerm, searchStore.indexDictionaries)
-      case LongSearchTerm(term, content) => ServeIndices[F](searchTerm, searchStore.indexDictionaries)
-    }
-
+    val indicesOrNot: F[List[Int]] = ServeIndices[F](searchTerm, searchStore.indexDictionaries)
     /**
       * For Comprehension not be able to use that her as:
       *   F.fromOption uplift Applicative so that is not a Monad-like

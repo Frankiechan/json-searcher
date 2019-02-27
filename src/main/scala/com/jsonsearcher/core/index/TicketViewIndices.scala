@@ -52,6 +52,6 @@ object TicketViewIndices {
 
   def preload(u: List[TicketView]): IndexDictionaries = {
 
-    ???
+    IndexDictionaries(Map(), Map(), Map())
   }
 }
