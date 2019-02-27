@@ -27,9 +27,7 @@ libraryDependencies ++= Seq(
 
 scalacOptions ++= Seq(
   "-Ypartial-unification",
-  //  "-Xfatal-warnings",
   "-Yno-adapted-args",
-  "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Ywarn-unused-import",
   "-Ywarn-numeric-widen",

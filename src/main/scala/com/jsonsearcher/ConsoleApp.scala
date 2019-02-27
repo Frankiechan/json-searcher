@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import cats.effect.Console.implicits._
 import cats.effect.{Console, IO, Sync}
 import cats.implicits._
-import com.jsonsearcher.core.SearchOperation
+import com.jsonsearcher.core.{SearchOperation, SearchStoreInitializer}
 import com.jsonsearcher.models._
 
 class ConsoleRun[F[_]](searchOperation: (SearchTerm, SearchStore) => F[NonEmptyList[View]])
@@ -57,11 +57,11 @@ class ConsoleRun[F[_]](searchOperation: (SearchTerm, SearchStore) => F[NonEmptyL
       n <- readLnOrQuit
       next <- n match {
         case "1" =>
-          SearchStoreInitialiser.userView[F]().init().map(EnterSearchTerm(_, UserSearchRequest.apply))
+          SearchStoreInitializer.userView[F]().init().map(EnterSearchTerm(_, UserSearchRequest.apply))
         case "2" =>
-          SearchStoreInitialiser.ticketView[F]().init().map(EnterSearchTerm(_, TicketSearchRequest.apply))
+          SearchStoreInitializer.ticketView[F]().init().map(EnterSearchTerm(_, TicketSearchRequest.apply))
         case "3" =>
-          SearchStoreInitialiser.orgView[F]().init().map(EnterSearchTerm(_, OrgSearchRequest.apply))
+          SearchStoreInitializer.orgView[F]().init().map(EnterSearchTerm(_, OrgSearchRequest.apply))
         case _ => F.pure(Instruction)
       }
     } yield next
@@ -129,7 +129,7 @@ object ConsoleApp {
     var stateInIO: IO[FiniteConsoleState] = consoleRun.atStart()
 
     while (true) {
-      stateInIO = stateInIO.handleErrorWith(e => ErrorHandler.handle[IO](e)).unsafeRunSync() match {
+      stateInIO = stateInIO.unsafeRunSync() match {
         case Start => consoleRun.atStart()
         case Instruction => consoleRun.atInstruction()
         case StartSearch => consoleRun.atStartSearch()
