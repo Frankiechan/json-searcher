@@ -1,55 +1,48 @@
 package com.jsonsearcher.core.index
 
 import com.jsonsearcher.core.IndexDictionaries
-import com.jsonsearcher.models.{OrganizationView, UserView}
+import com.jsonsearcher.models.OrganizationView
 
 object OrgViewIndices {
 
-//  def _id(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user._id, userViews)
-//
-//  def url(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.url, userViews)
-//
-//  def external_id(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.external_id, userViews)
-//
-//  def name(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.name, userViews)
-//
-//  def alias(userViews: List[UserView]) =
-//    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.alias, userViews))
-//
-//  def created_at(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.created_at, userViews)
-//
-//  def active(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.active, userViews)
-//
-//  def verified(userViews: List[UserView]) =
-//    DropNoneIndex.filter(Indexer.index[Option[Boolean], UserView]((u: UserView) => u.user.verified, userViews))
-//
-//  def shared(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.shared, userViews)
-//
-//  def locale(userViews: List[UserView]) =
-//    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.locale, userViews))
-//
-//  def timezone(userViews: List[UserView]) =
-//    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.timezone, userViews))
-//
-//  def last_login_at(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.last_login_at, userViews)
-//
-//  def email(userViews: List[UserView]) =
-//    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.email, userViews))
-//
-//  def phone(userViews: List[UserView]) =
-//    DropNoneIndex.filter(Indexer.index[Option[String], UserView]((u: UserView) => u.user.phone, userViews))
-//
-//  def signature(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.signature, userViews)
-//
-//  def organization_id(userViews: List[UserView]) =
-//    DropNoneIndex.filter(Indexer.index[Option[Long], UserView]((u: UserView) => u.user.organization_id, userViews))
-//
-//  //  def tags(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.tags, userViews)
-//  def suspended(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.suspended, userViews)
-//
-//  def role(userViews: List[UserView]) = Indexer.index((u: UserView) => u.user.role, userViews)
+  def _id(OrganizationViews: List[OrganizationView]) = Indexer.index((org: OrganizationView) => org.org._id, OrganizationViews)
 
-  def preload(u: List[OrganizationView]): IndexDictionaries = {
-    IndexDictionaries(Map(), Map(), Map())
+  def url(OrganizationViews: List[OrganizationView]) = Indexer.index((org: OrganizationView) => org.org.url, OrganizationViews)
+
+  def external_id(OrganizationViews: List[OrganizationView]) = Indexer.index((org: OrganizationView) => org.org.external_id, OrganizationViews)
+
+  def name(OrganizationViews: List[OrganizationView]) = Indexer.index((org: OrganizationView) => org.org.name, OrganizationViews)
+
+  def domain_names(OrganizationViews: List[OrganizationView]) = Indexer.arrayIndex((org: OrganizationView) => org.org.domain_names, OrganizationViews)
+
+  def created_at(OrganizationViews: List[OrganizationView]) = Indexer.index((org: OrganizationView) => org.org.created_at, OrganizationViews)
+
+  def details(OrganizationViews: List[OrganizationView]) = Indexer.index((org: OrganizationView) => org.org.details, OrganizationViews)
+
+  def shared_tickets(OrganizationViews: List[OrganizationView]) = Indexer.index((org: OrganizationView) => org.org.shared_tickets, OrganizationViews)
+
+  def tags(OrganizationViews: List[OrganizationView]) = Indexer.arrayIndex((org: OrganizationView) => org.org.tags, OrganizationViews)
+
+  def preload(org: List[OrganizationView]): IndexDictionaries = {
+
+    val longIndices = Map(
+      "_id" -> _id(org),
+    )
+
+    val strIndices = Map(
+      "url" -> url(org),
+      "external_id" -> external_id(org),
+      "name" -> name(org),
+      "domain_names" -> domain_names(org),
+      "created_at" -> created_at(org),
+      "details" -> details(org),
+      "tags" -> tags(org),
+    )
+
+    val boolIndices = Map(
+      "shared_tickets" -> shared_tickets(org)
+    )
+
+    IndexDictionaries(longIndices, strIndices, boolIndices)
   }
 }
