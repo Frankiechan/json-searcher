@@ -10,7 +10,7 @@ object SearchTermBuilder {
     searchRequest match {
       case UserSearchRequest(t, c) => UserSearchTermBuilder.build(t)(c)
       case TicketSearchRequest(t, c) => TicketSearchTermBuilder.build(t)(c)
-      case TicketSearchRequest(t, c) => OrgsSearchTermBuilder.build(t)(c)
+      case OrgSearchRequest(t, c) => OrgsSearchTermBuilder.build(t)(c)
     }
   }
 }
