@@ -6,6 +6,8 @@ case object Start extends FiniteConsoleState
 
 case object Instruction extends FiniteConsoleState
 
+case object SearchableFields extends FiniteConsoleState
+
 case object StartSearch extends FiniteConsoleState
 
 case class EnterSearchTerm(searchStore: SearchStore,

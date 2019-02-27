@@ -6,6 +6,7 @@ import cats.effect.{Console, IO, Sync}
 import cats.implicits._
 import com.jsonsearcher.core.{SearchOperation, SearchStoreInitializer}
 import com.jsonsearcher.models._
+import com.jsonsearcher.utils.{SearchResultPrettyPrinter, SearchableFieldsPrinter}
 
 class ConsoleRun[F[_]](searchOperation: (SearchTerm, SearchStore) => F[NonEmptyList[View]])
                       (implicit F: Sync[F], C: Console[F]) {
@@ -37,7 +38,7 @@ class ConsoleRun[F[_]](searchOperation: (SearchTerm, SearchStore) => F[NonEmptyL
       n <- readLnOrQuit
       next <- n match {
         case "1" => F.pure(StartSearch)
-        case "2" => F.pure(Start)
+        case "2" => F.pure(SearchableFields)
         case _ => F.pure(Instruction)
       }
     } yield next
@@ -69,6 +70,21 @@ class ConsoleRun[F[_]](searchOperation: (SearchTerm, SearchStore) => F[NonEmptyL
     HandleError[F](process, Instruction)
   }
 
+  def atListOfSearchableFields(): F[FiniteConsoleState] = {
+    val process: F[FiniteConsoleState] = for {
+      _ <- C.putStrLn("Here are all the searchable field")
+      _ <-
+        SearchableFieldsPrinter[F]().printUserSearchableField() >>
+          F.pure(printf("%n")) >>
+          SearchableFieldsPrinter[F]().printTicketSearchableField() >>
+          F.pure(printf("%n")) >>
+          SearchableFieldsPrinter[F]().printOrgSearchableField()
+      next <- F.pure(Instruction)
+    } yield next
+
+    HandleError[F](process, Instruction)
+  }
+
   def atEnterSearchTerm(state: EnterSearchTerm): F[FiniteConsoleState] = {
     val enterSearchTerm = "enter search term"
 
@@ -93,25 +109,17 @@ class ConsoleRun[F[_]](searchOperation: (SearchTerm, SearchStore) => F[NonEmptyL
         state.requestConstructor,
         state.requestConstructor(state.term, content)
       ))
-      //      request <- F.pure(state.requestConstructor(state.term, content))
-      //      searchTerm <- SearchTermBuilder.build[F](request)
-      //      results <- searchOperation(searchTerm, state.searchStore)
-      //      _ <- F.pure(results.map(_.asJson).map(println(_)))
-      //      _ <- C.putStrLn("Search Completed")
-      //      next <- F.pure(EnterSearchTerm(state.searchStore, state.requestConstructor))
     } yield next
 
     HandleError[F](process, EnterSearchTerm(state.searchStore, state.requestConstructor))
   }
 
   def atOperatingSearch(state: OperateSearch): F[FiniteConsoleState] = {
-    import io.circe.generic.auto._
-    import io.circe.syntax._
     val process: F[FiniteConsoleState] = for {
       _ <- C.putStrLn(s"Searching for ${state.searchRequest.term} with value ${state.searchRequest.content}")
       searchTerm <- SearchTermBuilder.build[F](state.searchRequest)
       results <- searchOperation(searchTerm, state.searchStore)
-      _ <- F.pure(results.map(_.asJson).map(println(_)))
+      _ <- SearchResultPrettyPrinter.print[F](results.toList)
       _ <- C.putStrLn("Search Completed")
       next <- F.pure(EnterSearchTerm(state.searchStore, state.requestConstructor))
     } yield next
@@ -150,6 +158,7 @@ object ConsoleApp {
         case Start => consoleRun.atStart()
         case Instruction => consoleRun.atInstruction()
         case StartSearch => consoleRun.atStartSearch()
+        case SearchableFields => consoleRun.atListOfSearchableFields()
         case s: EnterSearchTerm => consoleRun.atEnterSearchTerm(s)
         case s: EnterSearchValue => consoleRun.atEnterSearchValue(s)
         case s: OperateSearch => consoleRun.atOperatingSearch(s)
