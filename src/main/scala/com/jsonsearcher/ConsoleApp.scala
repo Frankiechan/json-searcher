@@ -83,16 +83,33 @@ class ConsoleRun[F[_]](searchOperation: (SearchTerm, SearchStore) => F[NonEmptyL
   }
 
   def atEnterSearchValue(state: EnterSearchValue): F[FiniteConsoleState] = {
-    import io.circe.generic.auto._
-    import io.circe.syntax._
-
     val enterSearchValue = "enter search value"
 
     val process: F[FiniteConsoleState] = for {
       _ <- C.putStrLn(enterSearchValue)
       content <- readLnOrQuit
-      request <- F.pure(state.requestConstructor(state.term, content))
-      searchTerm <- SearchTermBuilder.build[F](request)
+      next <- F.pure(OperateSearch(
+        state.searchStore,
+        state.requestConstructor,
+        state.requestConstructor(state.term, content)
+      ))
+      //      request <- F.pure(state.requestConstructor(state.term, content))
+      //      searchTerm <- SearchTermBuilder.build[F](request)
+      //      results <- searchOperation(searchTerm, state.searchStore)
+      //      _ <- F.pure(results.map(_.asJson).map(println(_)))
+      //      _ <- C.putStrLn("Search Completed")
+      //      next <- F.pure(EnterSearchTerm(state.searchStore, state.requestConstructor))
+    } yield next
+
+    HandleError[F](process, EnterSearchTerm(state.searchStore, state.requestConstructor))
+  }
+
+  def atOperatingSearch(state: OperateSearch): F[FiniteConsoleState] = {
+    import io.circe.generic.auto._
+    import io.circe.syntax._
+    val process: F[FiniteConsoleState] = for {
+      _ <- C.putStrLn(s"Searching for ${state.searchRequest.term} with value ${state.searchRequest.content}")
+      searchTerm <- SearchTermBuilder.build[F](state.searchRequest)
       results <- searchOperation(searchTerm, state.searchStore)
       _ <- F.pure(results.map(_.asJson).map(println(_)))
       _ <- C.putStrLn("Search Completed")
@@ -124,7 +141,7 @@ object HandleError {
 }
 
 object ConsoleApp {
-  def start()= {
+  def start() = {
     val consoleRun = new ConsoleRun[IO](SearchOperation.apply[IO])
     var stateInIO: IO[FiniteConsoleState] = consoleRun.atStart()
 
@@ -135,6 +152,7 @@ object ConsoleApp {
         case StartSearch => consoleRun.atStartSearch()
         case s: EnterSearchTerm => consoleRun.atEnterSearchTerm(s)
         case s: EnterSearchValue => consoleRun.atEnterSearchValue(s)
+        case s: OperateSearch => consoleRun.atOperatingSearch(s)
       }
     }
   }

@@ -4,7 +4,10 @@ import cats.effect.Sync
 import cats.implicits._
 import com.jsonsearcher.{AppError, NoSuchSearchFieldException, ToLongParseErrorMakeIncompatibleSearchValue}
 
-sealed trait SearchRequest
+sealed trait SearchRequest {
+  def term: String
+  def content: String
+}
 
 case class UserSearchRequest(term: String, content: String) extends SearchRequest
 
