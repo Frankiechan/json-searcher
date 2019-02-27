@@ -13,3 +13,7 @@ object Indexer {
       }
   }
 }
+
+object ListIndexer {
+
+}
