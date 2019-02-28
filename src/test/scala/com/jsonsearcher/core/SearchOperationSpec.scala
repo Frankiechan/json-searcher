@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import cats.implicits._
 import com.jsonsearcher.core.index.UserViewIndices
 import com.jsonsearcher.fixtures.ModelData
-import com.jsonsearcher.models.{LongSearchTerm, SearchStore, UserView, View}
+import com.jsonsearcher.models.{LongSearchTerm, SearchStore}
 import org.scalatest.FunSpec
 
 class SearchOperationSpec extends FunSpec {

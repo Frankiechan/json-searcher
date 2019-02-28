@@ -4,7 +4,7 @@ import cats.Monad
 import cats.implicits._
 import com.jsonsearcher.models.{Organization, Ticket, User}
 
-case class SearchableFieldsPrinter[F[_]](implicit F: Monad[F]) {
+case class SearchableFieldsPrinter[F[_]]()(implicit F: Monad[F]) {
   def printUserSearchableField(): F[Unit] =
     F.pure(println("User Searchable Fields:")) >> F.pure(extractFields[User].foreach(println(_)))
 

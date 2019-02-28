@@ -23,6 +23,13 @@ libraryDependencies ++= Seq(
   "org.scalacheck" %% "scalacheck" % scalaCheckVersion % Test
 )
 
+dependencyOverrides ++= Seq(
+  "org.typelevel" % "cats-core_2.12" % "1.5.0",
+  "org.typelevel" % "cats-kernel_2.12" % "1.5.0",
+  "org.typelevel" % "cats-macros_2.12" % "1.5.0"
+)
+
+
 scalacOptions ++= Seq(
   "-Ypartial-unification",
   "-Yno-adapted-args",
