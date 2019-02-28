@@ -79,9 +79,9 @@ after the first run, two external volume would be created to cache all the loade
 
 #### Disadvantages and optimizations:
 
-##### Memory Leak when large volume of data exceeding single machine capacity:
+##### Out of Memonry when large volume of data exceeding single machine capacity:
 
-Although diskIO by streaming in-memory-denormolised data into multiple partitions in disk by hash key for a given search key could guarantee the memory would be explored given a big enough disk volume; 
+Although diskIO by streaming in-memory-denormolised data into multiple partitions in disk by hash key for a given search key could guarantee the memory would not be explored given a big enough disk volume; 
 
 This appraoch would slow down the search dramactically even with HDFS support;
 
