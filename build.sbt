@@ -18,8 +18,6 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-testing" % circeVersion,
   "io.circe" %% "circe-literal" % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
-  "org.tpolecat" %% "atto-core" % attoVersion,
-  "org.tpolecat" %% "atto-refined" % attoVersion,
   "com.github.gvolpe" %% "console4cats" % "0.6.0",
   "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
   "org.scalacheck" %% "scalacheck" % scalaCheckVersion % Test
